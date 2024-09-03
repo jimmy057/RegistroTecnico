@@ -1,0 +1,73 @@
+﻿@page "/Tecnicos/Create"
+@inject TecnicoService Tecnicoservice
+@inject NavigationManager navigationManager
+@rendermode InteractiveServer
+
+<EditForm Model="tecnico" OnInvalidSubmit="Crear">
+   <div class="container"> 
+       <div class="card shadow-lg">
+            <div class="card-header bg-body text-black text-center">
+                <h2><strong>Crear nuevo técnico</strong></h2>
+            </div>
+            <div class="card-body">
+    
+                <label class="form-label" for="id"><strong>TécnicoId</strong></label>
+                <InputNumber id="id" class="form-control" @bind-Value="tecnico.TecnicoId" readonly></InputNumber>
+
+    
+                <label class="form-label" for="Nombre"><strong>Nombre</strong></label>
+                <InputText id="nombres" class="form-control" @bind-Value="tecnico.Nombre"></InputText>
+
+    
+                <label class="form-label" for="sueldo"><strong>Sueldo por hora</strong></label>
+                <InputNumber id="sueldo" class="form-control" @bind-Value="tecnico.sueldoHora"></InputNumber>
+            </div>
+            
+            <div>
+     
+                <div class="card-footer">
+                <button type="button" class="btn btn-secondary bi bi-arrow-left" @onclick="Volver">Volver</button>
+                <button type="submit" class="btn btn-success bi bi-floppy-fill" @onclick=Crear>Guardar</button>
+            </div>
+         </div>
+       </div>
+   </div> 
+</EditForm> 
+
+@code {
+    [Parameter]
+    public Tecnicos tecnico { get; set; } = new Tecnicos();
+    public bool NombreRepetido { get; set; }
+    public string Mensaje = string.Empty;
+
+
+    public async Task Crear()
+    {
+        if (!await Validar())
+        {
+            await Tecnicoservice.Guardar(tecnico);
+            Mensaje = "El técnico fue guardado.";
+            tecnico = new Tecnicos();
+        }
+        else
+        {
+            Mensaje = "un técnico ya fue guargado con ese  guardado.";
+        }
+    }
+    /* el validar me estaba dando problema de logica porque tenia los siguiente  var existeTecnico = await tecnicoService.BuscarNombres(tecnico.Nombre); return existeTecnico == null; esto los que estaba haciendo era  retornando true si el existetecnico es igual a null
+    */
+    public async Task<bool> Validar()
+    {
+        var existeTecnico = await Tecnicoservice.BuscarNombres(tecnico.Nombre);
+        return existeTecnico != null;  // Retorna true si el técnico ya existe
+
+
+
+    }
+
+    public void Volver()
+    {
+        navigationManager.NavigateTo("/Tecnicos/Index");
+    }
+
+}
