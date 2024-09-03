@@ -1,0 +1,162 @@
+﻿@page "/Tecnicos/Index"
+
+@inject TecnicoService tecnicoService
+@inject NavigationManager navigationManager
+@rendermode InteractiveServer
+
+<PageTitle>Index</PageTitle>
+<div class="container">
+    <div class="shadow-lg">
+        <div class="card-header text-center">
+            <h3><strong>Listado de T&eacute;cnicos</strong></h3>
+        </div>
+
+        <div class="card-body">
+            <div class="row">
+                <div class="col-3">
+                    <label class="col-form-label">
+                        <strong><i class="bi bi-funnel"></i> Filtrar por</strong>
+                    </label>
+                </div>
+
+                <div class="col-4">
+                    <label class="col-form-label">
+                        <strong><i class="bi bi-search"></i> B&uacute;squeda</strong>
+                    </label>
+                </div>
+            </div>
+
+            <div class="row align-items-center">
+                <div class="col-3">
+                    <InputSelect class="form-select" @bind-Value="Filtro">
+                        <option value="" selected disabled>Elija una opci&oacute;n</option>
+                        <option value="Id"><i class="bi bi-person-badge"></i> Id</option>
+                        <option value="Nombre"><i class="bi bi-person"></i> Nombre</option>
+                        <option value="SueldoHora"><i class="bi bi-currency-dollar"></i> SueldoHora</option>
+                    </InputSelect>
+                </div>
+
+                <div class="col-4">
+                    <div class="input-group">
+                        <input class="form-control" @bind="ValorFiltro" placeholder="Buscar" />
+                        <button type="button" class="btn btn-outline-primary" @onclick="Buscar">
+                            <i class="bi bi-search"></i><img src="images/buscar.png" alt="Detalles" />
+                        </button>
+                    </div>
+                </div>
+
+
+                <!-- Se elimina la columna que contenía el botón de "Restablecer" -->
+                <!-- <div class="col-auto">
+                    <button type="button" class="btn btn-outline-secondary bi bi-arrow-clockwise" @onclick="Restablecer"></button>
+                </div> -->
+
+                <div class="col-3">
+                    <button type="button" class="btn btn-primary" @onclick="PantallaCrear"> Crear</button>
+                </div>
+            </div>
+
+            <table class="table table-bordered text-center mt-4">
+                <thead>
+                    <tr>
+                        <th><i class="bi bi-person-badge"></i> TecnicoId</th>
+                        <th><i class="bi bi-person"></i> Nombres</th>
+                        <th><i class="bi bi-currency-dollar"></i> SueldoHora</th>
+                        <th><i class="bi bi-eye-fill"></i> Observar</th>
+                        <th><i class="bi bi-pencil-square"></i> Editar</th>
+                        <th><i class="bi bi-trash-fill"></i> Eliminar</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var tecnico in ListaTecnicos)
+                    {
+                        <tr>
+                            <td>@tecnico.TecnicoId</td>
+                            <td>@tecnico.Nombre</td>
+                            <td>@tecnico.SueldoHora</td>
+
+                            <td>
+                                <button type="button" class="btn btn-outline-primary boton-rosado icon-button"
+                                        @onclick="()=> PantallaObservar(tecnico.TecnicoId)">
+                                    <img src="images/observar.png" alt="Detalles" />
+                                </button>
+                            </td>
+                            <td>
+                                <button type="button" class="btn btn-outline-warning boton-rosado icon-button"
+                                        @onclick="()=> PantallaEditar(tecnico.TecnicoId)">
+                                    <img src="images/Editar.png" alt="Detalles" />
+                                </button>
+                            </td>
+                            <td>
+                                <button type="button" class="btn btn-outline-danger boton-rosado icon-button"
+                                        @onclick="()=> PantallaEliminar(tecnico.TecnicoId)">
+                                    <img src="images/eliminar.png" alt="Detalles" />
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <div class="card-footer">
+            <p><strong>Total de T&eacute;cnicos: </strong>@ListaTecnicos.Count</p>
+        </div>
+    </div>
+</div>
+
+@code {
+    public List<Tecnicos> ListaTecnicos { get; set; } = new List<Tecnicos>();
+
+    public string Filtro { get; set; } = string.Empty;
+    public string ValorFiltro { get; set; } = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        ListaTecnicos = await tecnicoService.Listar(e => e.TecnicoId > 0);
+    }
+
+    public void PantallaCrear() => navigationManager.NavigateTo("/Tecnicos/Create");
+
+    public void PantallaObservar(int id)
+    {
+        navigationManager.NavigateTo($"/Tecnicos/Details/{id}");
+    }
+
+    public void PantallaEditar(int id)
+    {
+        navigationManager.NavigateTo($"/Tecnicos/Edit/{id}");
+    }
+
+    public void PantallaEliminar(int id)
+    {
+        navigationManager.NavigateTo($"/Tecnicos/Delete/{id}");
+    }
+
+    private async Task Buscar()
+    {
+        if (ValorFiltro.Trim() != "")
+        {
+            if (Filtro == "Id" && int.TryParse(ValorFiltro, out int tecnicoId))
+                ListaTecnicos = await tecnicoService.Listar(e => e.TecnicoId == tecnicoId);
+            else if (Filtro == "Nombre")
+                ListaTecnicos = await tecnicoService.Listar(e => e.Nombre.ToLower().Contains(ValorFiltro.ToLower()));
+            else if (Filtro == "SueldoHora")
+            {
+                if (double.TryParse(ValorFiltro, out double sueldoHora))
+                {
+                    ListaTecnicos = await tecnicoService.Listar(e => e.SueldoHora == sueldoHora);
+                }
+            }
+        }
+        else
+            ListaTecnicos = await tecnicoService.Listar(e => e.TecnicoId > 0);
+    }
+
+    private async Task Restablecer()
+    {
+        ListaTecnicos = await tecnicoService.Listar(e => e.TecnicoId > 0);
+        Filtro = string.Empty;
+        ValorFiltro = string.Empty;
+    }
+}
