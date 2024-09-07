@@ -25,7 +25,10 @@ namespace RegistroTecnico.Migrations
                     b.Property<string>("Nombre")
                         .HasColumnType("TEXT");
 
-                    b.Property<double>("sueldoHora")
+                    b.Property<double>("SueldoHora")
+                        .HasColumnType("REAL");
+
+                    b.Property<double>("TipoTecnico")
                         .HasColumnType("REAL");
 
                     b.HasKey("TecnicoId");

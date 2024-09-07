@@ -8,7 +8,7 @@
 <div class="container">
     <div class="shadow-lg">
         <div class="card-header text-center">
-            <h3><strong>Listado de T&eacute;cnicos</strong></h3>
+            <h3><strong>Listado de Técnicos</strong></h3>
         </div>
 
         <div class="card-body">
@@ -21,34 +21,34 @@
 
                 <div class="col-4">
                     <label class="col-form-label">
-                        <strong><i class="bi bi-search"></i> B&uacute;squeda</strong>
+                        <strong><i class="bi bi-search"></i> Búsqueda</strong>
                     </label>
                 </div>
             </div>
 
-                <div class="row align-items-center">
-                    <div class="col-3">
-                        <InputSelect class="form-select" @bind-Value="Filtro">
-                            <option value="" selected disabled>Elija una opci&oacute;n</option>
-                            <option value="Id"><i class="bi bi-person-badge"></i> Id</option>
-                            <option value="Nombre"><i class="bi bi-person"></i> Nombre</option>
-                            <option value="SueldoHora"><i class="bi bi-currency-dollar"></i> SueldoHora</option>
-                        </InputSelect>
-                    </div>
-
-                    <div class="col-4">
-                        <div class="input-group">
-                             <input class="form-control" @bind="ValorFiltro" placeholder="Buscar" />
-                             <button type="button" class="btn btn-outline-primary" @onclick="Buscar">
-                                 <i class="bi bi-search"></i><img src="images/buscar.png" alt="Detalles" />
-                             </button>
-                        </div>
-                    </div>
-                </div>
+            <div class="row align-items-center">
                 <div class="col-3">
-                    <button type="button" class="btn btn-primary" @onclick="PantallaCrear"> Crear</button>
+                    <InputSelect class="form-select" @bind-Value="Filtro" @onchange="OnFilterChange">
+                        <option value="" selected disabled>Elija una opción</option>
+                        <option value="Id"><i class="bi bi-person-badge"></i> Id</option>
+                        <option value="Nombre"><i class="bi bi-person"></i> Nombre</option>
+                        <option value="SueldoHora"><i class="bi bi-currency-dollar"></i> SueldoHora</option>
+                        <option value="TipoTecnico"><i class="bi bi-briefcase"></i> Tipo de Técnico</option>
+                    </InputSelect>
                 </div>
-            
+
+                <div class="col-4">
+                    <div class="input-group">
+                        <input class="form-control" @bind="ValorFiltro" placeholder="Buscar" />
+                        <button type="button" class="btn btn-outline-primary" @onclick="Buscar">
+                            <i class="bi bi-search"></i><img src="images/buscar.png" alt="Detalles" />
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="col-3">
+                <button type="button" class="btn btn-primary" @onclick="PantallaCrear"> Crear</button>
+            </div>
 
             <table class="table table-bordered text-center mt-4">
                 <thead>
@@ -56,6 +56,7 @@
                         <th><i class="bi bi-person-badge"></i> TecnicoId</th>
                         <th><i class="bi bi-person"></i> Nombres</th>
                         <th><i class="bi bi-currency-dollar"></i> SueldoHora</th>
+                        <th><i class="bi bi-briefcase"></i> Tipo de Técnico</th>
                         <th><i class="bi bi-eye-fill"></i> Observar</th>
                         <th><i class="bi bi-pencil-square"></i> Editar</th>
                         <th><i class="bi bi-trash-fill"></i> Eliminar</th>
@@ -68,6 +69,7 @@
                             <td>@tecnico.TecnicoId</td>
                             <td>@tecnico.Nombre</td>
                             <td>@tecnico.SueldoHora</td>
+                            <td>@tecnico.TipoTecnico</td>
 
                             <td>
                                 <button type="button" class="btn btn-outline-primary boton-rosado icon-button"
@@ -94,7 +96,7 @@
         </div>
 
         <div class="card-footer">
-            <p><strong>Total de T&eacute;cnicos: </strong>@ListaTecnicos.Count</p>
+            <p><strong>Total de Técnicos: </strong>@ListaTecnicos.Count</p>
         </div>
     </div>
 </div>
@@ -132,9 +134,14 @@
         if (ValorFiltro.Trim() != "")
         {
             if (Filtro == "Id" && int.TryParse(ValorFiltro, out int tecnicoId))
+            {
                 ListaTecnicos = await tecnicoService.Listar(e => e.TecnicoId == tecnicoId);
+            }
             else if (Filtro == "Nombre")
-                ListaTecnicos = await tecnicoService.Listar(e => e.Nombre.ToLower().Contains(ValorFiltro.ToLower()));
+            {
+                ListaTecnicos = await tecnicoService.Listar(e =>
+                    e.Nombre != null && e.Nombre.ToLower().Contains(ValorFiltro.ToLower()));
+            }
             else if (Filtro == "SueldoHora")
             {
                 if (double.TryParse(ValorFiltro, out double sueldoHora))
@@ -142,15 +149,22 @@
                     ListaTecnicos = await tecnicoService.Listar(e => e.SueldoHora == sueldoHora);
                 }
             }
+            else if (Filtro == "TipoTecnico")
+            {
+                ListaTecnicos = await tecnicoService.Listar(e =>
+                    e.TipoTecnico != null && e.TipoTecnico.ToLower().Contains(ValorFiltro.ToLower()));
+            }
         }
         else
+        {
             ListaTecnicos = await tecnicoService.Listar(e => e.TecnicoId > 0);
+        }
     }
 
-    private async Task Restablecer()
+    private async Task OnFilterChange(ChangeEventArgs e)
     {
-        ListaTecnicos = await tecnicoService.Listar(e => e.TecnicoId > 0);
-        Filtro = string.Empty;
         ValorFiltro = string.Empty;
+
+        await Buscar();
     }
 }
