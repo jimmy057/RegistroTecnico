@@ -26,35 +26,29 @@
                 </div>
             </div>
 
-            <div class="row align-items-center">
-                <div class="col-3">
-                    <InputSelect class="form-select" @bind-Value="Filtro">
-                        <option value="" selected disabled>Elija una opci&oacute;n</option>
-                        <option value="Id"><i class="bi bi-person-badge"></i> Id</option>
-                        <option value="Nombre"><i class="bi bi-person"></i> Nombre</option>
-                        <option value="SueldoHora"><i class="bi bi-currency-dollar"></i> SueldoHora</option>
-                    </InputSelect>
-                </div>
+                <div class="row align-items-center">
+                    <div class="col-3">
+                        <InputSelect class="form-select" @bind-Value="Filtro">
+                            <option value="" selected disabled>Elija una opci&oacute;n</option>
+                            <option value="Id"><i class="bi bi-person-badge"></i> Id</option>
+                            <option value="Nombre"><i class="bi bi-person"></i> Nombre</option>
+                            <option value="SueldoHora"><i class="bi bi-currency-dollar"></i> SueldoHora</option>
+                        </InputSelect>
+                    </div>
 
-                <div class="col-4">
-                    <div class="input-group">
-                        <input class="form-control" @bind="ValorFiltro" placeholder="Buscar" />
-                        <button type="button" class="btn btn-outline-primary" @onclick="Buscar">
-                            <i class="bi bi-search"></i><img src="images/buscar.png" alt="Detalles" />
-                        </button>
+                    <div class="col-4">
+                        <div class="input-group">
+                             <input class="form-control" @bind="ValorFiltro" placeholder="Buscar" />
+                             <button type="button" class="btn btn-outline-primary" @onclick="Buscar">
+                                 <i class="bi bi-search"></i><img src="images/buscar.png" alt="Detalles" />
+                             </button>
+                        </div>
                     </div>
                 </div>
-
-
-                <!-- Se elimina la columna que contenía el botón de "Restablecer" -->
-                <!-- <div class="col-auto">
-                    <button type="button" class="btn btn-outline-secondary bi bi-arrow-clockwise" @onclick="Restablecer"></button>
-                </div> -->
-
                 <div class="col-3">
                     <button type="button" class="btn btn-primary" @onclick="PantallaCrear"> Crear</button>
                 </div>
-            </div>
+            
 
             <table class="table table-bordered text-center mt-4">
                 <thead>
