@@ -10,7 +10,7 @@ using RegistroTecnico.DAL;
 namespace RegistroTecnico.Migrations
 {
     [DbContext(typeof(Contexto))]
-    [Migration("20240907204358_AddTipoTecnicoColumn")]
+    [Migration("20240908010752_AddTipoTecnicoColumn")]
     partial class AddTipoTecnicoColumn
     {
         /// <inheritdoc />
@@ -31,8 +31,9 @@ namespace RegistroTecnico.Migrations
                     b.Property<double>("SueldoHora")
                         .HasColumnType("REAL");
 
-                    b.Property<double>("TipoTecnico")
-                        .HasColumnType("REAL");
+                    b.Property<string>("TipoTecnico")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
 
                     b.HasKey("TecnicoId");
 

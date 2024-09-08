@@ -8,7 +8,7 @@
 <div class="container">
     <div class="shadow-lg">
         <div class="card-header text-center">
-            <h3><strong>Listado de Técnicos</strong></h3>
+            <h3><strong>Listado de T&eacute;cnicos</strong></h3>
         </div>
 
         <div class="card-body">
@@ -21,15 +21,15 @@
 
                 <div class="col-4">
                     <label class="col-form-label">
-                        <strong><i class="bi bi-search"></i> Búsqueda</strong>
+                        <strong><i class="bi bi-search"></i> B&uacute;squeda</strong>
                     </label>
                 </div>
             </div>
 
             <div class="row align-items-center">
                 <div class="col-3">
-                    <InputSelect class="form-select" @bind-Value="Filtro" @onchange="OnFilterChange">
-                        <option value="" selected disabled>Elija una opción</option>
+                    <InputSelect class="form-select" @bind-Value="Filtro">
+                        <option value="" selected disabled>Elija una opci&oacute;n</option>
                         <option value="Id"><i class="bi bi-person-badge"></i> Id</option>
                         <option value="Nombre"><i class="bi bi-person"></i> Nombre</option>
                         <option value="SueldoHora"><i class="bi bi-currency-dollar"></i> SueldoHora</option>
@@ -38,12 +38,24 @@
                 </div>
 
                 <div class="col-4">
-                    <div class="input-group">
-                        <input class="form-control" @bind="ValorFiltro" placeholder="Buscar" />
-                        <button type="button" class="btn btn-outline-primary" @onclick="Buscar">
-                            <i class="bi bi-search"></i><img src="images/buscar.png" alt="Detalles" />
-                        </button>
-                    </div>
+                    @if (Filtro == "TipoTecnico")
+                    {
+                        <InputSelect class="form-select" @bind-Value="ValorFiltro">
+                            <option value="" selected disabled>Elija un tipo de técnico</option>
+                            <option value="Junior">Junior</option>
+                            <option value="Senior">Senior</option>
+                            <option value="Especialista">Especialista</option>
+                        </InputSelect>
+                    }
+                    else
+                    {
+                        <div class="input-group">
+                            <input class="form-control" @bind="ValorFiltro" placeholder="Buscar" />
+                            <button type="button" class="btn btn-outline-primary" @onclick="Buscar">
+                                <i class="bi bi-search"></i><img src="images/buscar.png" alt="Detalles" />
+                            </button>
+                        </div>
+                    }
                 </div>
             </div>
             <div class="col-3">
@@ -70,7 +82,6 @@
                             <td>@tecnico.Nombre</td>
                             <td>@tecnico.SueldoHora</td>
                             <td>@tecnico.TipoTecnico</td>
-
                             <td>
                                 <button type="button" class="btn btn-outline-primary boton-rosado icon-button"
                                         @onclick="()=> PantallaObservar(tecnico.TecnicoId)">
@@ -96,7 +107,7 @@
         </div>
 
         <div class="card-footer">
-            <p><strong>Total de Técnicos: </strong>@ListaTecnicos.Count</p>
+            <p><strong>Total de T&eacute;cnicos: </strong>@ListaTecnicos.Count</p>
         </div>
     </div>
 </div>
@@ -109,7 +120,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        ListaTecnicos = await tecnicoService.Listar(e => e.TecnicoId > 0);
+        ListaTecnicos = tecnicoService.Listar(e => e.TecnicoId > 0);
     }
 
     public void PantallaCrear() => navigationManager.NavigateTo("/Tecnicos/Create");
@@ -134,37 +145,24 @@
         if (ValorFiltro.Trim() != "")
         {
             if (Filtro == "Id" && int.TryParse(ValorFiltro, out int tecnicoId))
-            {
-                ListaTecnicos = await tecnicoService.Listar(e => e.TecnicoId == tecnicoId);
-            }
+                ListaTecnicos = tecnicoService.Listar(e => e.TecnicoId == tecnicoId);
             else if (Filtro == "Nombre")
-            {
-                ListaTecnicos = await tecnicoService.Listar(e =>
-                    e.Nombre != null && e.Nombre.ToLower().Contains(ValorFiltro.ToLower()));
-            }
+                ListaTecnicos = tecnicoService.Listar(e => e.Nombre.ToLower().Contains(ValorFiltro.ToLower()));
             else if (Filtro == "SueldoHora")
             {
                 if (double.TryParse(ValorFiltro, out double sueldoHora))
                 {
-                    ListaTecnicos = await tecnicoService.Listar(e => e.SueldoHora == sueldoHora);
+                    ListaTecnicos = tecnicoService.Listar(e => e.SueldoHora == sueldoHora);
                 }
             }
             else if (Filtro == "TipoTecnico")
             {
-                ListaTecnicos = await tecnicoService.Listar(e =>
-                    e.TipoTecnico != null && e.TipoTecnico.ToLower().Contains(ValorFiltro.ToLower()));
+                ListaTecnicos = tecnicoService.Listar(e => e.TipoTecnico.ToLower().Contains(ValorFiltro.ToLower()));
             }
         }
         else
         {
-            ListaTecnicos = await tecnicoService.Listar(e => e.TecnicoId > 0);
+            ListaTecnicos = tecnicoService.Listar(e => e.TecnicoId > 0);
         }
-    }
-
-    private async Task OnFilterChange(ChangeEventArgs e)
-    {
-        ValorFiltro = string.Empty;
-
-        await Buscar();
     }
 }

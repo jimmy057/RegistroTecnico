@@ -17,7 +17,7 @@ namespace RegistroTecnico.Services
 
         public async Task<bool> Insertar(Tecnicos tecnicos)
         {
-            _Contexto.Tecnicos.AddAsync(tecnicos);
+            await _Contexto.Tecnicos.AddAsync(tecnicos);
             return await _Contexto.SaveChangesAsync() > 0;
         }
         public async Task<bool> Modificar(Tecnicos tecnicos)
@@ -28,7 +28,6 @@ namespace RegistroTecnico.Services
 
         public async Task<bool> Guardar(Tecnicos tecnicos)
         {
-            //Busca la prioridad, si no existe la inserta, si existe la modifica
             if (!await Existe(tecnicos.Nombre))
                 return await Insertar(tecnicos);
             else
@@ -52,7 +51,7 @@ namespace RegistroTecnico.Services
             return await _Contexto.Tecnicos.AsNoTracking()
                 .FirstOrDefaultAsync(t => t.Nombre == nombre);
         }
-        public async Task<List<Tecnicos>> Listar(Expression<Func<Tecnicos, bool>> criterio)
+        public List<Tecnicos> Listar(Expression<Func<Tecnicos, bool>> criterio)
         {
             return _Contexto.Tecnicos.AsNoTracking()
                 .Where(criterio)

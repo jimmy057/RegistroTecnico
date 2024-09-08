@@ -57,7 +57,6 @@ else
             var eliminado = await Tecnicoservice.ELiminar(tecnico.TecnicoId);
             if (eliminado)
             {
-                // Redirigir a la lista de técnicos después de eliminar
                 navigationManager.NavigateTo("/Tecnicos/Index");
             }
             else

@@ -18,7 +18,7 @@ namespace RegistroTecnico.Migrations
                         .Annotation("Sqlite:Autoincrement", true),
                     Nombre = table.Column<string>(type: "TEXT", nullable: true),
                     SueldoHora = table.Column<double>(type: "REAL", nullable: false),
-                    TipoTecnico = table.Column<double>(type: "REAL", nullable: false)
+                    TipoTecnico = table.Column<string>(type: "TEXT", nullable: false)
                 },
                 constraints: table =>
                 {
