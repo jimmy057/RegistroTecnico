@@ -1,4 +1,6 @@
-﻿@page "/Tecnicos/Delete {TecnicoId:int}"
+﻿@page "/Tecnicos/Delete/{TecnicoId:int}"
+@using RegistroTecnico.Models
+@using RegistroTecnico.Services
 @inject TecnicoServices tecnicoservices
 @inject NavigationManager navigationManager
 @rendermode InteractiveServer
