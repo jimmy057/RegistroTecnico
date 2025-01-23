@@ -57,6 +57,13 @@ namespace RegistroTecnico.Services
                 .FirstOrDefaultAsync(t => t.Nombres == nombre);
         }
 
+        public async Task<bool> ExisteNombre(string nombre)
+        {
+            await using var contexto = await DbFactory.CreateDbContextAsync();
+            return await contexto.Tecnicos.AnyAsync(t => t.Nombres == nombre);
+        }
+
+
         public async Task<List<Tecnicos>> Listar(Expression<Func<Tecnicos, bool>> criterio)
         {
             await using var contexto = await DbFactory.CreateDbContextAsync();
