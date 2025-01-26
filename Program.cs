@@ -14,6 +14,7 @@ var ConStr = builder.Configuration.GetConnectionString("sqlConStr");
 builder.Services.AddDbContextFactory<Contexto>(o => o.UseSqlServer(ConStr));
 
 builder.Services.AddScoped<TecnicoServices>();
+builder.Services.AddScoped<ClienteServices>();
 
 var app = builder.Build();
 
