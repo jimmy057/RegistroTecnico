@@ -11,8 +11,8 @@ using RegistroTecnico.DAL;
 namespace RegistroTecnico.Migrations
 {
     [DbContext(typeof(Contexto))]
-    [Migration("20250118202857_inicial")]
-    partial class inicial
+    [Migration("20250126011211_CreateClientesTable")]
+    partial class CreateClientesTable
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
