@@ -12,7 +12,7 @@ using RegistroTecnico.DAL;
 namespace RegistroTecnico.Migrations
 {
     [DbContext(typeof(Contexto))]
-    [Migration("20250126015243_Inicial")]
+    [Migration("20250127232916_Inicial")]
     partial class Inicial
     {
         /// <inheritdoc />
@@ -24,6 +24,26 @@ namespace RegistroTecnico.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+
+            modelBuilder.Entity("RegistroTecnico.Models.Ciudad", b =>
+                {
+                    b.Property<int>("CiudadId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("CiudadId"));
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("TecnicoId")
+                        .HasColumnType("int");
+
+                    b.HasKey("CiudadId");
+
+                    b.ToTable("Ciudad");
+                });
 
             modelBuilder.Entity("RegistroTecnico.Models.Cliente", b =>
                 {
@@ -46,13 +66,13 @@ namespace RegistroTecnico.Migrations
 
                     b.Property<string>("Nombres")
                         .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
 
                     b.Property<string>("RNC")
                         .IsRequired()
-                        .HasMaxLength(11)
-                        .HasColumnType("nvarchar(11)");
+                        .HasMaxLength(9)
+                        .HasColumnType("nvarchar(9)");
 
                     b.Property<int>("TecnicoId")
                         .HasColumnType("int");

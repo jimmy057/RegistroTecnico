@@ -22,6 +22,26 @@ namespace RegistroTecnico.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("RegistroTecnico.Models.Ciudad", b =>
+                {
+                    b.Property<int>("CiudadId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("CiudadId"));
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("TecnicoId")
+                        .HasColumnType("int");
+
+                    b.HasKey("CiudadId");
+
+                    b.ToTable("Ciudad");
+                });
+
             modelBuilder.Entity("RegistroTecnico.Models.Cliente", b =>
                 {
                     b.Property<int>("ClienteId")
@@ -43,13 +63,13 @@ namespace RegistroTecnico.Migrations
 
                     b.Property<string>("Nombres")
                         .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
 
                     b.Property<string>("RNC")
                         .IsRequired()
-                        .HasMaxLength(11)
-                        .HasColumnType("nvarchar(11)");
+                        .HasMaxLength(9)
+                        .HasColumnType("nvarchar(9)");
 
                     b.Property<int>("TecnicoId")
                         .HasColumnType("int");
