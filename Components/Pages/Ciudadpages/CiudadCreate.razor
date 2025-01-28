@@ -1,0 +1,70 @@
+﻿@page "/Ciudad/Create"
+@using RegistroTecnico.Services
+@using RegistroTecnico.Models
+@inject CiudadServices ciudadService
+@inject NavigationManager navigationManager
+@rendermode InteractiveServer
+
+<PageTitle>Crear Ciudad</PageTitle>
+
+<div class="card shadow-lg">
+    <div class="card-header bg-primary text-white text-center py-2 rounded">
+        <h3 style="font-weight: bold;" class="mb-0">Registro de Ciudad</h3>
+    </div>
+
+    <EditForm Model="@ciudad" OnValidSubmit="Guardar">
+        <DataAnnotationsValidator />
+        <div class="card-body">
+            <div class="mb-3">
+                <label for="Nombre" class="form-label">Nombre de la Ciudad:</label>
+                <InputText id="Nombre" @bind-Value="ciudad.Name" class="form-control" />
+                <ValidationMessage For="@(() => ciudad.Name)" />
+            </div>
+        </div>
+
+        <div class="card-footer bg-light d-flex justify-content-between mt-3">
+            <div class="btn-group">
+                <button type="button" class="btn btn-outline-primary" @onclick="Nuevo"><span class="bi bi-plus"></span> Nuevo</button>
+                <button type="submit" class="btn btn-outline-success"><span class="bi bi-check-circle-fill"></span> Guardar</button>
+                <a href="/Ciudad/Index" class="btn btn-outline-danger"><span class="bi bi-arrow-bar-left"></span> Retroceder</a>
+            </div>
+        </div>
+    </EditForm>
+</div>
+
+@code {
+    public Ciudad ciudad { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        ciudad = new Ciudad();
+    }
+
+    public void Nuevo()
+    {
+        ciudad = new Ciudad();  
+    }
+
+    public async Task Guardar()
+    {
+        try
+        {
+            if (ciudad == null)
+            {
+                throw new InvalidOperationException("El objeto Ciudad no está inicializado.");
+            }
+
+            bool guardo = await ciudadService.Guardar(ciudad);
+            if (guardo)
+            {
+                Nuevo();
+                navigationManager.NavigateTo("/Ciudad/Index"); 
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error al guardar la ciudad: {ex.Message}");
+        }
+    }
+}
+
