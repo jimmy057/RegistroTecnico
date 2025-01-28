@@ -1,0 +1,82 @@
+﻿@page "/Ciudad/Delete/{CiudadId:int}"
+@inject CiudadServices ciudadService
+@inject NavigationManager navigationManager
+@inject IJSRuntime JSRuntime
+@rendermode InteractiveServer
+
+<PageTitle>Eliminar Ciudad</PageTitle>
+
+@if (ciudad != null)
+{
+    <div class="container">
+        <div class="card shadow-lg border-0 rounded">
+            <div class="card-header bg-danger text-white text-center py-2 rounded">
+                <h3 class="mb-0"><strong>Eliminar Ciudad</strong></h3>
+            </div>
+            <div class="card-body">
+                <p>¿Estás seguro que deseas eliminar la siguiente ciudad?</p>
+                <ul class="list-unstyled">
+                    <li><strong>Ciudad ID:</strong> @ciudad.CiudadId</li>
+                    <li><strong>Nombre:</strong> @ciudad.Name</li>
+                </ul>
+            </div>
+            <div class="card-footer d-flex justify-content-between">
+                <button type="button" class="btn btn-outline-secondary" @onclick="Volver">
+                    <i class="bi bi-arrow-left-circle"></i> Volver
+                </button>
+                <button type="button" class="btn btn-outline-danger" @onclick="EliminarCiudad">
+                    <i class="bi bi-trash"></i> Eliminar
+                </button>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    <div class="container">
+        <div class="alert alert-warning text-center" role="alert">
+            <strong>Ciudad no encontrada.</strong>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public int CiudadId { get; set; }
+    public Ciudad? ciudad { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        ciudad = await ciudadService.Buscar(CiudadId);
+        if (ciudad == null)
+        {
+            navigationManager.NavigateTo("/Ciudad/Index");
+        }
+    }
+
+    private async Task EliminarCiudad()
+    {
+        if (ciudad != null)
+        {
+            var confirmado = await JSRuntime.InvokeAsync<bool>("confirm", new object[] { "¿Estás seguro de eliminar esta ciudad?" });
+            if (confirmado)
+            {
+                var eliminado = await ciudadService.Eliminar(ciudad.CiudadId);
+                if (eliminado)
+                {
+                    navigationManager.NavigateTo("/Ciudad/Index");
+                }
+                else
+                {
+                    Console.WriteLine("Error al eliminar la ciudad.");
+                    await JSRuntime.InvokeVoidAsync("alert", "No se pudo eliminar la ciudad.");
+                }
+            }
+        }
+    }
+
+    public void Volver()
+    {
+        navigationManager.NavigateTo("/Ciudad/Index");
+    }
+}
