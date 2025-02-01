@@ -98,6 +98,43 @@ namespace RegistroTecnico.Migrations
 
                     b.ToTable("Tecnicos");
                 });
+
+            modelBuilder.Entity("RegistroTecnico.Models.Tickets", b =>
+                {
+                    b.Property<int>("TicketsId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("TicketsId"));
+
+                    b.Property<string>("Asunto")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("ClienteId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Descripcion")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("Fecha")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Prioridad")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("TecnicoId")
+                        .HasColumnType("int");
+
+                    b.Property<double>("TiempoInvertido")
+                        .HasColumnType("float");
+
+                    b.HasKey("TicketsId");
+
+                    b.ToTable("Tickets");
+                });
 #pragma warning restore 612, 618
         }
     }

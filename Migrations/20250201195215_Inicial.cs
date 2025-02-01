@@ -56,6 +56,25 @@ namespace RegistroTecnico.Migrations
                 {
                     table.PrimaryKey("PK_Tecnicos", x => x.TecnicoId);
                 });
+
+            migrationBuilder.CreateTable(
+                name: "Tickets",
+                columns: table => new
+                {
+                    TicketsId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Fecha = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    Prioridad = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ClienteId = table.Column<int>(type: "int", nullable: false),
+                    Asunto = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Descripcion = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    TiempoInvertido = table.Column<double>(type: "float", nullable: false),
+                    TecnicoId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Tickets", x => x.TicketsId);
+                });
         }
 
         /// <inheritdoc />
@@ -69,6 +88,9 @@ namespace RegistroTecnico.Migrations
 
             migrationBuilder.DropTable(
                 name: "Tecnicos");
+
+            migrationBuilder.DropTable(
+                name: "Tickets");
         }
     }
 }
