@@ -1,0 +1,144 @@
+﻿@page "/Tickets/Create"
+@inject TicketServices ticketService
+@inject TecnicoServices tecnicoService
+@inject NavigationManager navigationManager
+@rendermode InteractiveServer
+
+<div class="card shadow-lg border-0 rounded" style="background-color: #f8f9fa;">
+    <div class="card-header bg-primary text-white text-center">
+        <h3><i class="fas fa-ticket-alt"></i> Registro de Ticket</h3>
+    </div>
+
+    <div class="card-body">
+        @if (!string.IsNullOrEmpty(mensaje))
+        {
+            <div class="alert @(mensaje.StartsWith("Error") ? "alert-danger" : "alert-success")">
+                @mensaje
+            </div>
+        }
+
+        <EditForm Model="tickets" OnValidSubmit="Guardar">
+            <DataAnnotationsValidator />
+
+            @* ID del Ticket *@
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="ticketID" class="form-label">ID del Ticket:</label>
+                    <InputNumber @bind-Value="tickets.TicketsId" class="form-control" disabled />
+                </div>
+            </div>
+
+            @* Fecha *@
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="fecha" class="form-label">Fecha:</label>
+                    <InputDate @bind-Value="tickets.Fecha" class="form-control" />
+                </div>
+            </div>
+
+            @* Prioridad *@
+            <div class="mb-3">
+                <label for="prioridad" class="form-label">Prioridad:</label>
+                <InputSelect @bind-Value="tickets.Prioridad" class="form-control">
+                    <option value="">Seleccione una prioridad</option>
+                    <option value="Alta">Alta</option>
+                    <option value="Media">Media</option>
+                    <option value="Baja">Baja</option>
+                </InputSelect>
+            </div>
+
+            @* Cliente ID *@
+            <div class="mb-3">
+                <label for="clienteId" class="form-label">ID del Cliente:</label>
+                <InputNumber @bind-Value="tickets.ClienteId" class="form-control" />
+            </div>
+
+            @* Asunto *@
+            <div class="mb-3">
+                <label for="asunto" class="form-label">Asunto:</label>
+                <InputText @bind-Value="tickets.Asunto" class="form-control" />
+            </div>
+
+            @* Técnico Encargado *@
+            <div class="mb-3">
+                <label for="tecnicoId" class="form-label">Técnico Encargado:</label>
+                <InputSelect @bind-Value="tickets.TecnicoId" class="form-control">
+                    <option value="">Seleccione un técnico</option>
+                    @foreach (var tecnico in tecnicos)
+                    {
+                        <option value="@tecnico.TecnicoId">@tecnico.Nombres</option>
+                    }
+                </InputSelect>
+            </div>
+
+            <div class="card-footer bg-light d-flex justify-content-center mt-3">
+                <div class="btn-group">
+                    <button type="button" class="btn btn-outline-primary ml-2" @onclick="Nuevo"> <span class="bi bi-plus"></span> Nuevo </button>
+                    <button type="submit" class="btn btn-outline-success ml-2"> <span class="bi bi-check-circle-fill"></span> Guardar </button>
+                    <a href="/Tickets/Index" class="btn btn-outline-danger"> <span class="bi bi-arrow-bar-left"></span> Retroceder </a>
+                </div>
+            </div>
+        </EditForm>
+    </div>
+</div>
+
+@code {
+    public Tickets tickets { get; set; } = new Tickets();
+    private List<Tecnicos> tecnicos = new List<Tecnicos>();
+    private string mensaje = string.Empty;
+
+    public TicketCreate()
+    {
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        tecnicos = await tecnicoService.ObtenerLista();
+
+        await Task.CompletedTask;
+    }
+
+
+    public void Nuevo()
+    {
+        tickets = new Tickets();
+        mensaje = string.Empty;
+    }
+
+    public async Task Guardar()
+    {
+        if (!await Validar())
+        {
+            return;
+        }
+
+        bool guardo;
+        if (tickets.TicketsId == 0) 
+        {
+            
+            guardo = await ticketService.Insertar(tickets);
+            mensaje = guardo ? "Ticket creado exitosamente." : "Hubo un problema al crear el ticket.";
+        }
+        else 
+        {
+            guardo = await ticketService.Modificar(tickets);
+            mensaje = guardo ? "Ticket actualizado exitosamente." : "Hubo un problema al actualizar el ticket.";
+        }
+
+        if (guardo)
+        {
+            navigationManager.NavigateTo("/Tickets/Index");
+        }
+    }
+
+    public async Task<bool> Validar()
+    {
+        mensaje = string.Empty;
+        if (string.IsNullOrWhiteSpace(tickets.Asunto) || string.IsNullOrWhiteSpace(tickets.Prioridad) || tickets.ClienteId <= 0 || tickets.TecnicoId <= 0)
+        {
+            mensaje = "Todos los campos son obligatorios.";
+            return false;
+        }
+        return true;
+    }
+}
