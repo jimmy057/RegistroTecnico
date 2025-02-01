@@ -1,0 +1,82 @@
+﻿@page "/Tickets/Delete/{TicketId:int}"
+@inject TicketServices ticketService
+@inject TecnicoServices tecnicoService  
+@inject NavigationManager navigationManager
+@rendermode InteractiveServer
+
+<PageTitle>Eliminar Ticket</PageTitle>
+
+@if (ticket != null)
+{
+    <div class="container">
+        <div class="card shadow-header">
+            <div class="card-header bg-danger text-white text-center py-2 rounded">
+                <h3 class="text-center"><strong>Eliminar Ticket</strong></h3>
+            </div>
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="card-body">
+                            <p>¿Estás seguro que deseas eliminar el siguiente ticket?</p>
+                            <ul class="list-unstyled">
+                                <li><strong>Ticket ID:</strong> @ticket.TicketsId</li>
+                                <li><strong>Fecha:</strong> @ticket.Fecha.ToString("dd/MM/yyyy")</li>
+                                <li><strong>Prioridad:</strong> @ticket.Prioridad</li>
+                                <li><strong>Cliente ID:</strong> @ticket.ClienteId</li>
+                                <li><strong>Asunto:</strong> @ticket.Asunto</li>
+                                <li><strong>Técnico:</strong> @(TecnicosDiccionario.ContainsKey(ticket.TecnicoId) ? TecnicosDiccionario[ticket.TecnicoId] : "Desconocido")</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer d-flex justify-content-between">
+                <button type="button" class="btn btn-outline-primary" @onclick="Volver"><i class="bi bi-box-arrow-left"></i> Volver</button>
+                <button type="button" class="btn btn-outline-danger" @onclick="EliminarTicket"><i class="bi bi-trash"></i> Eliminar</button>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    <p>Ticket no encontrado.</p>
+}
+
+@code {
+    [Parameter]
+    public int TicketId { get; set; }
+    public Tickets? ticket { get; set; }
+    public Dictionary<int, string> TecnicosDiccionario { get; set; } = new Dictionary<int, string>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        ticket = await ticketService.Buscar(TicketId);
+
+        if (ticket != null)
+        {
+            var tecnicos = await tecnicoService.Listar(e => e.TecnicoId > 0);
+            TecnicosDiccionario = tecnicos.ToDictionary(t => t.TecnicoId, t => t.Nombres);
+        }
+    }
+
+    private async Task EliminarTicket()
+    {
+        if (ticket != null)
+        {
+            var eliminado = await ticketService.Eliminar(ticket.TicketsId);
+            if (eliminado)
+            {
+                navigationManager.NavigateTo("/Tickets/Index");
+            }
+            else
+            {
+                Console.WriteLine("No se pudo eliminar el ticket.");
+            }
+        }
+    }
+
+    public void Volver()
+    {
+        navigationManager.NavigateTo("/Tickets/Index");
+    }
+}
