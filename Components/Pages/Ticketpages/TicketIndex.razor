@@ -1,0 +1,145 @@
+﻿@page "/Tickets/Index"
+@inject TicketServices ticketService
+@inject TecnicoServices tecnicoService
+@inject NavigationManager navigationManager
+@rendermode InteractiveServer
+
+<PageTitle>Tickets</PageTitle>
+
+<div class="shadow-lg">
+    <div class="card shadow-lg border-success rounded" style="background-color: transparent;">
+        <div class="card-header btn-primary text-white" style="text-align: center;">
+            <h3><strong>Listado de Tickets</strong></h3>
+        </div>
+
+        <div class="card-body">
+            <div class="row">
+                <div class="col-3">
+                    <label class="col-form-label"><strong>Filtrar por</strong></label>
+                </div>
+
+                <div class="col-4">
+                    <label class="col-form-label"><strong>B&uacute;squeda</strong></label>
+                </div>
+            </div>
+
+            <div class="row align-items-center">
+                <div class="col-3">
+                    <InputSelect class="form-select" @bind-Value="Filtro">
+                        <option value="" selected disabled>Elija una opci&oacute;n</option>
+                        <option value="Id">Id</option>
+                        <option value="Fecha">Fecha</option>
+                        <option value="Prioridad">Prioridad</option>
+                        <option value="ClienteId">Cliente ID</option>
+                        <option value="TecnicoId">T&eacute;cnico</option>
+                    </InputSelect>
+                </div>
+
+                <div class="col-4">
+                    <div class="input-group">
+                        <input class="form-control" @bind="ValorFiltro" placeholder="Buscar" />
+                        <button type="button" class="btn btn-outline-primary" @onclick="Buscar">Buscar</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-3 mt-2">
+                <button type="button" class="btn btn-primary" @onclick="PantallaCrear">Crear</button>
+            </div>
+
+            <table class="table table-bordered text-center mt-4">
+                <thead>
+                    <tr>
+                        <th>ID de Ticket</th>
+                        <th>Fecha</th>
+                        <th>Prioridad</th>
+                        <th>Cliente ID</th>
+                        <th>Asunto</th>
+                        <th>T&eacute;cnico</th>
+                        <th>Editar</th>
+                        <th>Eliminar</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var ticket in ListaTickets)
+                    {
+                        <tr>
+                            <td>@ticket.TicketsId</td>
+                            <td>@ticket.Fecha.ToString("dd/MM/yyyy")</td>
+                            <td>@ticket.Prioridad</td>
+                            <td>@ticket.ClienteId</td>
+                            <td>@ticket.Asunto</td>
+                            <td>@(TecnicosDiccionario.ContainsKey(ticket.TecnicoId) ? TecnicosDiccionario[ticket.TecnicoId] : "Desconocido")</td>
+                            <td>
+                                <button type="button" class="btn btn-primary bi bi-pencil-square" @onclick="() => PantallaEditar(ticket.TicketsId)"></button>
+                            </td>
+                            <td>
+                                <button type="button" class="btn btn-danger bi bi-trash" @onclick="() => PantallaEliminar(ticket.TicketsId)"></button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <div class="card-footer">
+            <p><strong>Total de Tickets: </strong>@ListaTickets.Count</p>
+        </div>
+    </div>
+</div>
+
+@code {
+    public List<Tickets> ListaTickets { get; set; } = new List<Tickets>();
+    public Dictionary<int, string> TecnicosDiccionario { get; set; } = new Dictionary<int, string>();
+
+    public string Filtro { get; set; } = string.Empty;
+    public string ValorFiltro { get; set; } = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        ListaTickets = await ticketService.Listar(e => e.TicketsId > 0);
+
+        var tecnicos = await tecnicoService.Listar(e => e.TecnicoId > 0);
+        TecnicosDiccionario = tecnicos.ToDictionary(t => t.TecnicoId, t => t.Nombres);
+    }
+
+    public void PantallaCrear() => navigationManager.NavigateTo("/Tickets/Create");
+
+    public void PantallaEditar(int id)
+    {
+        navigationManager.NavigateTo($"/Tickets/Edit/{id}");
+    }
+
+    public void PantallaEliminar(int id)
+    {
+        navigationManager.NavigateTo($"/Tickets/Delete/{id}");
+    }
+
+    private async Task Buscar()
+    {
+        if (ValorFiltro.Trim() != "")
+        {
+            if (Filtro == "Id" && int.TryParse(ValorFiltro, out int ticketId))
+                ListaTickets = await ticketService.Listar(e => e.TicketsId == ticketId);
+            else if (Filtro == "Fecha" && DateTime.TryParse(ValorFiltro, out DateTime fecha))
+                ListaTickets = await ticketService.Listar(e => e.Fecha.Date == fecha.Date);
+            else if (Filtro == "Prioridad")
+                ListaTickets = await ticketService.Listar(e => e.Prioridad.ToLower().Contains(ValorFiltro.ToLower()));
+            else if (Filtro == "ClienteId" && int.TryParse(ValorFiltro, out int clienteId))
+                ListaTickets = await ticketService.Listar(e => e.ClienteId == clienteId);
+            else if (Filtro == "TecnicoId")
+                ListaTickets = await ticketService.Listar(e => TecnicosDiccionario[e.TecnicoId].ToLower().Contains(ValorFiltro.ToLower()));
+        }
+        else
+        {
+            ListaTickets = await ticketService.Listar(e => e.TicketsId > 0);
+        }
+    }
+
+    private async Task Restablecer()
+    {
+        ListaTickets = await ticketService.Listar(e => e.TicketsId > 0);
+        Filtro = string.Empty;
+        ValorFiltro = string.Empty;
+    }
+}
