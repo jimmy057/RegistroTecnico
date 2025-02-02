@@ -20,23 +20,18 @@
         <EditForm Model="tickets" OnValidSubmit="Guardar">
             <DataAnnotationsValidator />
 
-            @* ID del Ticket *@
             <div class="row">
                 <div class="col-md-6 mb-3">
                     <label for="ticketID" class="form-label">ID del Ticket:</label>
                     <InputNumber @bind-Value="tickets.TicketsId" class="form-control" disabled />
                 </div>
-            </div>
 
-            @* Fecha *@
-            <div class="row">
                 <div class="col-md-6 mb-3">
                     <label for="fecha" class="form-label">Fecha:</label>
                     <InputDate @bind-Value="tickets.Fecha" class="form-control" />
                 </div>
             </div>
 
-            @* Prioridad *@
             <div class="mb-3">
                 <label for="prioridad" class="form-label">Prioridad:</label>
                 <InputSelect @bind-Value="tickets.Prioridad" class="form-control">
@@ -47,19 +42,21 @@
                 </InputSelect>
             </div>
 
-            @* Cliente ID *@
             <div class="mb-3">
                 <label for="clienteId" class="form-label">ID del Cliente:</label>
                 <InputNumber @bind-Value="tickets.ClienteId" class="form-control" />
             </div>
 
-            @* Asunto *@
             <div class="mb-3">
                 <label for="asunto" class="form-label">Asunto:</label>
                 <InputText @bind-Value="tickets.Asunto" class="form-control" />
             </div>
 
-            @* Técnico Encargado *@
+            <div class="mb-3">
+                <label for="descripcion" class="form-label">Descripción:</label>
+                <InputTextArea @bind-Value="tickets.Descripcion" class="form-control" rows="3" />
+            </div>
+
             <div class="mb-3">
                 <label for="tecnicoId" class="form-label">Técnico Encargado:</label>
                 <InputSelect @bind-Value="tickets.TecnicoId" class="form-control">
@@ -83,62 +80,88 @@
 </div>
 
 @code {
-    public Tickets tickets { get; set; } = new Tickets();
-    private List<Tecnicos> tecnicos = new List<Tecnicos>();
+    private Tickets tickets = new Tickets { Fecha = DateTime.Now };
+    private List<Tecnicos> tecnicos = new();
     private string mensaje = string.Empty;
-
-    public TicketCreate()
-    {
-    }
 
     protected override async Task OnInitializedAsync()
     {
-        tecnicos = await tecnicoService.ObtenerLista();
-
-        await Task.CompletedTask;
+        try
+        {
+            tecnicos = await tecnicoService.ObtenerLista();
+        }
+        catch (Exception ex)
+        {
+            mensaje = "Error al cargar la lista de técnicos: " + ex.Message;
+        }
     }
 
-
-    public void Nuevo()
+    private void Nuevo()
     {
-        tickets = new Tickets();
+        tickets = new Tickets { Fecha = DateTime.Now };
         mensaje = string.Empty;
     }
 
-    public async Task Guardar()
+    private async Task Guardar()
     {
         if (!await Validar())
         {
             return;
         }
 
-        bool guardo;
-        if (tickets.TicketsId == 0) 
+        try
         {
-            
-            guardo = await ticketService.Insertar(tickets);
-            mensaje = guardo ? "Ticket creado exitosamente." : "Hubo un problema al crear el ticket.";
-        }
-        else 
-        {
-            guardo = await ticketService.Modificar(tickets);
-            mensaje = guardo ? "Ticket actualizado exitosamente." : "Hubo un problema al actualizar el ticket.";
-        }
+            bool guardo = tickets.TicketsId == 0
+                ? await ticketService.Insertar(tickets)
+                : await ticketService.Modificar(tickets);
 
-        if (guardo)
+            mensaje = guardo ? "Ticket guardado exitosamente." : "Error al guardar el ticket.";
+            if (guardo)
+            {
+                navigationManager.NavigateTo("/Tickets/Index");
+            }
+        }
+        catch (Exception ex)
         {
-            navigationManager.NavigateTo("/Tickets/Index");
+            mensaje = "Error inesperado: " + ex.Message;
         }
     }
 
-    public async Task<bool> Validar()
+    private async Task<bool> Validar()
     {
         mensaje = string.Empty;
-        if (string.IsNullOrWhiteSpace(tickets.Asunto) || string.IsNullOrWhiteSpace(tickets.Prioridad) || tickets.ClienteId <= 0 || tickets.TecnicoId <= 0)
+
+        if (string.IsNullOrWhiteSpace(tickets.Asunto))
         {
-            mensaje = "Todos los campos son obligatorios.";
+            mensaje = "El campo 'Asunto' es obligatorio.";
             return false;
         }
+
+        if (string.IsNullOrWhiteSpace(tickets.Prioridad))
+        {
+            mensaje = "Debe seleccionar una prioridad.";
+            return false;
+        }
+
+        if (tickets.ClienteId <= 0)
+        {
+            mensaje = "El ID del cliente debe ser un número positivo.";
+            return false;
+        }
+
+        if (tickets.TecnicoId <= 0)
+        {
+            mensaje = "Debe seleccionar un técnico.";
+            return false;
+        }
+
+        if (string.IsNullOrWhiteSpace(tickets.Descripcion) || tickets.Descripcion.Length < 10)
+        {
+            mensaje = "La descripción debe contener al menos 10 caracteres.";
+            return false;
+        }
+
         return true;
     }
 }
+
