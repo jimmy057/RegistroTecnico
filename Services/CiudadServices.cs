@@ -53,21 +53,21 @@ namespace RegistroTecnico.Services
         public async Task<Ciudad?> Buscar(int id)
         {
             await using var contexto = await DbFactory.CreateDbContextAsync();
-            return await contexto.Ciudad.AsNoTracking()
+            return await contexto.Ciudad
                 .FirstOrDefaultAsync(t => t.CiudadId == id);
         }
 
         public async Task<Ciudad?> BuscarNombres(string nombre)
         {
             await using var contexto = await DbFactory.CreateDbContextAsync();
-            return await contexto.Ciudad.AsNoTracking()
+            return await contexto.Ciudad
                 .FirstOrDefaultAsync(c => c.Name == nombre);
         }
 
         public async Task<List<Ciudad>> Listar(Expression<Func<Ciudad, bool>> criterio)
         {
             await using var contexto = await DbFactory.CreateDbContextAsync();
-            return await contexto.Ciudad.AsNoTracking()
+            return await contexto.Ciudad
                 .Where(criterio)
                 .ToListAsync();
         }
