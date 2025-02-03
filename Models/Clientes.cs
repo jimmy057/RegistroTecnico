@@ -20,6 +20,7 @@ namespace RegistroTecnico.Models
         public string Direccion { get; set; }
 
         [StringLength(9, ErrorMessage = "El RNC no puede exceder los 9 caracteres.")]
+        [RegularExpression("^[0-9]*$", ErrorMessage = "El RNC solo puede contener números.")]
         public string RNC { get; set; }
 
         [Required(ErrorMessage = "El límite de crédito es obligatorio.")]
