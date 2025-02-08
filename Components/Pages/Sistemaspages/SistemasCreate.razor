@@ -1,0 +1,76 @@
+﻿@page "/Sistemas/Create"
+@using Microsoft.AspNetCore.Components.Forms
+@using RegistroTecnico.Services
+@using RegistroTecnico.Models
+@inject SistemasServices sistemasServices
+@inject NavigationManager navigationManager
+@rendermode InteractiveServer
+
+<PageTitle>Crear Sistema</PageTitle>
+
+<div class="card shadow-lg">
+    <div class="card-header bg-primary text-white text-center py-2 rounded">
+        <h3 style="font-weight: bold;" class="mb-0">Registro de Sistema</h3>
+    </div>
+
+    <EditForm Model="@sistemas" OnValidSubmit="Guardar">
+        <DataAnnotationsValidator />
+        <div class="card-body">
+            <div class="mb-3">
+                <label for="Descripcion" class="form-label">Descripción del Sistema:</label>
+                <InputText id="Descripcion" @bind-Value="sistemas.Descripcion" class="form-control" />
+                <ValidationMessage For="@(() => sistemas.Descripcion)" />
+            </div>
+
+            <div class="mb-3">
+                <label for="Complejidad" class="form-label">Nivel de Complejidad:</label>
+                <InputNumber id="Complejidad" @bind-Value="sistemas.Complejidad" class="form-control" />
+                <ValidationMessage For="@(() => sistemas.Complejidad)" />
+            </div>
+        </div>
+
+        <div class="card-footer bg-light d-flex justify-content-between mt-3">
+            <div class="btn-group">
+                <button type="button" class="btn btn-outline-primary" @onclick="Nuevo"><span class="bi bi-plus"></span> Nuevo</button>
+                <button type="submit" class="btn btn-outline-success"><span class="bi bi-check-circle-fill"></span> Guardar</button>
+                <a href="/Sistemas/Index" class="btn btn-outline-danger"><span class="bi bi-arrow-bar-left"></span> Retroceder</a>
+            </div>
+        </div>
+    </EditForm>
+</div>
+
+@code {
+    public Sistemas sistemas { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        sistemas = new Sistemas();
+    }
+
+    public void Nuevo()
+    {
+        sistemas = new Sistemas();
+    }
+
+    public async Task Guardar()
+    {
+        try
+        {
+            if (sistemas == null)
+            {
+                throw new InvalidOperationException("El objeto Sistema no está inicializado.");
+            }
+
+            bool guardo = await sistemasServices.Guardar(sistemas);
+            if (guardo)
+            {
+                Nuevo();
+                navigationManager.NavigateTo("/Sistemas/Index");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error al guardar el sistema: {ex.Message}");
+        }
+    }
+}
