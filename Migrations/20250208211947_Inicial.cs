@@ -44,6 +44,21 @@ namespace RegistroTecnico.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Sistemas",
+                columns: table => new
+                {
+                    SistemasId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Descripcion = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Complejidad = table.Column<int>(type: "int", nullable: false),
+                    TecnicoId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Sistemas", x => x.SistemasId);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Tecnicos",
                 columns: table => new
                 {
@@ -64,11 +79,11 @@ namespace RegistroTecnico.Migrations
                     TicketsId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Fecha = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Prioridad = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Prioridad = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: false),
                     ClienteId = table.Column<int>(type: "int", nullable: false),
-                    Asunto = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Asunto = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     Descripcion = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    TiempoInvertido = table.Column<double>(type: "float", nullable: false),
+                    TiempoInvertido = table.Column<decimal>(type: "decimal(10,2)", nullable: false),
                     TecnicoId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
@@ -85,6 +100,9 @@ namespace RegistroTecnico.Migrations
 
             migrationBuilder.DropTable(
                 name: "Clientes");
+
+            migrationBuilder.DropTable(
+                name: "Sistemas");
 
             migrationBuilder.DropTable(
                 name: "Tecnicos");

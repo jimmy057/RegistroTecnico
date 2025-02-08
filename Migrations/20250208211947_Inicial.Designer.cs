@@ -12,7 +12,7 @@ using RegistroTecnico.DAL;
 namespace RegistroTecnico.Migrations
 {
     [DbContext(typeof(Contexto))]
-    [Migration("20250201195215_Inicial")]
+    [Migration("20250208211947_Inicial")]
     partial class Inicial
     {
         /// <inheritdoc />
@@ -82,6 +82,29 @@ namespace RegistroTecnico.Migrations
                     b.ToTable("Clientes");
                 });
 
+            modelBuilder.Entity("RegistroTecnico.Models.Sistemas", b =>
+                {
+                    b.Property<int>("SistemasId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("SistemasId"));
+
+                    b.Property<int>("Complejidad")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Descripcion")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("TecnicoId")
+                        .HasColumnType("int");
+
+                    b.HasKey("SistemasId");
+
+                    b.ToTable("Sistemas");
+                });
+
             modelBuilder.Entity("RegistroTecnico.Models.Tecnicos", b =>
                 {
                     b.Property<int>("TecnicoId")
@@ -112,7 +135,8 @@ namespace RegistroTecnico.Migrations
 
                     b.Property<string>("Asunto")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<int>("ClienteId")
                         .HasColumnType("int");
@@ -126,13 +150,14 @@ namespace RegistroTecnico.Migrations
 
                     b.Property<string>("Prioridad")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
 
                     b.Property<int>("TecnicoId")
                         .HasColumnType("int");
 
-                    b.Property<double>("TiempoInvertido")
-                        .HasColumnType("float");
+                    b.Property<decimal>("TiempoInvertido")
+                        .HasColumnType("decimal(10,2)");
 
                     b.HasKey("TicketsId");
 
