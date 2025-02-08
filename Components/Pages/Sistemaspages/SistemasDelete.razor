@@ -1,0 +1,72 @@
+﻿@page "/Sistemas/Delete/{SistemasId:int}"
+@inject SistemasServices sistemasServices
+@inject NavigationManager navigationManager
+@rendermode InteractiveServer
+
+<PageTitle>Eliminar Sistema</PageTitle>
+
+@if (sistemas != null)
+{
+    <div class="container">
+        <div class="card shadow-header">
+            <div class="card-header bg-danger text-white text-center py-2 rounded">
+                <h3 class="text-center"><strong>Eliminar Sistema</strong></h3>
+            </div>
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="card-body">
+                            <p>¿Estás seguro que deseas eliminar el siguiente sistema?</p>
+                            <ul class="list-unstyled">
+                                <li><strong>Sistema ID:</strong> @sistemas.SistemasId</li>
+                                <li><strong>Descripción:</strong> @sistemas.Descripcion</li>
+                                <li><strong>Complejidad:</strong> @sistemas.Complejidad</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer d-flex justify-content-between">
+                <button type="button" class="btn btn-outline-primary" @onclick="Volver"><i class="bi bi-box-arrow-left"></i> Volver</button>
+                <button type="button" class="btn btn-outline-danger" @onclick="EliminarSistema"><i class="bi bi-trash"></i> Eliminar</button>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    <p>Sistema no encontrado.</p>
+}
+
+@code {
+    [Parameter]
+    public int SistemasId { get; set; }
+    public Sistemas? sistemas { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        sistemas = await sistemasServices.Buscar(SistemasId);
+    }
+
+    private async Task EliminarSistema()
+    {
+        if (sistemas != null)
+        {
+            var eliminado = await sistemasServices.Eliminar(sistemas.SistemasId);
+            if (eliminado)
+            {
+                navigationManager.NavigateTo("/Sistemas/Index");
+            }
+            else
+            {
+                Console.WriteLine("No se pudo eliminar el sistema.");
+            }
+        }
+    }
+
+    public void Volver()
+    {
+        navigationManager.NavigateTo("/Sistemas/Index");
+    }
+}
+
