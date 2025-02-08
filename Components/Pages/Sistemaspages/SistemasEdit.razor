@@ -1,0 +1,104 @@
+﻿@page "/Sistemas/Edit/{SistemasId:int}"
+@inject SistemasServices sistemasServices
+@inject NavigationManager navigationManager
+@rendermode InteractiveServer
+
+<div class="card shadow-lg border-0 rounded" style="background-color: #f8f9fa;">
+    <div class="card-header bg-primary text-white text-center">
+        <h3><i class="fas fa-cogs"></i> Editar Sistema</h3>
+    </div>
+
+    <div class="card-body">
+        @if (!string.IsNullOrEmpty(mensaje))
+        {
+            <div class="alert @(mensaje.StartsWith("Error") ? "alert-danger" : "alert-success")">
+                @mensaje
+            </div>
+        }
+
+        <EditForm Model="sistemas" OnValidSubmit="Guardar">
+            <DataAnnotationsValidator />
+
+            @* ID del Sistema *@
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="sistemasId" class="form-label">ID del Sistema:</label>
+                    <InputNumber @bind-Value="sistemas.SistemasId" class="form-control" disabled />
+                </div>
+            </div>
+
+            @* Descripción *@
+            <div class="mb-3">
+                <label for="descripcion" class="form-label">Descripción del Sistema:</label>
+                <InputText @bind-Value="sistemas.Descripcion" class="form-control" />
+                <ValidationMessage For="@(() => sistemas.Descripcion)" />
+            </div>
+
+            @* Complejidad *@
+            <div class="mb-3">
+                <label for="complejidad" class="form-label">Nivel de Complejidad:</label>
+                <InputNumber @bind-Value="sistemas.Complejidad" class="form-control" />
+                <ValidationMessage For="@(() => sistemas.Complejidad)" />
+            </div>
+
+            <div class="card-footer bg-light d-flex justify-content-center mt-3">
+                <div class="btn-group">
+                    <button type="button" class="btn btn-outline-primary ml-2" @onclick="Nuevo"> <span class="bi bi-plus"></span> Nuevo </button>
+                    <button type="submit" class="btn btn-outline-success ml-2"> <span class="bi bi-check-circle-fill"></span> Guardar </button>
+                    <a href="/Sistemas/Index" class="btn btn-outline-danger"> <span class="bi bi-arrow-bar-left"></span> Retroceder </a>
+                </div>
+            </div>
+        </EditForm>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public int? SistemasId { get; set; }
+    public Sistemas sistemas { get; set; } = new Sistemas();
+    private string mensaje = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (SistemasId.HasValue)
+        {
+            var sistemaEncontrado = await sistemasServices.Buscar(SistemasId.Value);
+            if (sistemaEncontrado != null)
+            {
+                sistemas = sistemaEncontrado;
+            }
+        }
+    }
+
+    public void Nuevo()
+    {
+        sistemas = new Sistemas();
+        mensaje = string.Empty;
+    }
+
+    public async Task Guardar()
+    {
+        if (!await Validar())
+        {
+            return;
+        }
+
+        var guardo = await sistemasServices.Modificar(sistemas);
+        mensaje = guardo ? "Sistema actualizado exitosamente." : "Hubo un problema al actualizar el sistema.";
+        if (guardo)
+        {
+            navigationManager.NavigateTo("/Sistemas/Index");
+        }
+    }
+
+    public async Task<bool> Validar()
+    {
+        mensaje = string.Empty;
+        if (string.IsNullOrWhiteSpace(sistemas.Descripcion) || sistemas.Complejidad <= 0)
+        {
+            mensaje = "Todos los campos son obligatorios.";
+            return false;
+        }
+        return true;
+    }
+}
